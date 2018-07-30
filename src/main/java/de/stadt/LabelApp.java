@@ -68,14 +68,23 @@ public class LabelApp {
         printLabels(System.out, imagePath, allAnnotation.getLabelAnnotations());
         printWeb(System.out,allAnnotation.getWebDetection().getWebEntities());
         printfaces(System.out,allAnnotation.getFaceAnnotations());
+        printProp(System.out,allAnnotation.getImagePropertiesAnnotation().getDominantColors());
     }
 
+    public static void printProp(PrintStream out,  DominantColorsAnnotation colors_string){
+        out.printf("\n*****************DominantColorsAnnotation*************%s*******",colors_string.getColors().size());
+        System.out.println();
+        for(ColorInfo color:colors_string.getColors()){
+            System.out.println(color.getColor());
+        }
+
+    }
     /**
      * Prints the labels received from the Vision API.
      */
     public static void printLabels(PrintStream out, Path imagePath, List<EntityAnnotation> labels) {
-        out.printf("Labels for image %s:\n", imagePath);
-        out.printf("*****************labels*************%s*******\n",labels.size());
+        out.printf("\nLabels for image %s:\n\n", imagePath);
+        out.printf("*****************labels*************%s*******",labels.size());
 
         for (EntityAnnotation label : labels) {
             out.printf(
@@ -87,10 +96,11 @@ public class LabelApp {
             out.println("\tNo labels found.");
         }
     }
+
     // [END run_application]
 
     public static void printWeb(PrintStream out,  List<WebEntity> webs){
-        out.printf("*****************WEB*************%s*******\n",webs.size());
+        out.printf("\n*****************WEB*************%s*******",webs.size());
         for(WebEntity web: webs){
             out.printf(
                     "\t%s (score: %.3f)\n",
@@ -104,7 +114,7 @@ public class LabelApp {
     }
 
     public static void printfaces(PrintStream out,  List<FaceAnnotation> faces){
-        out.printf("*****************faces*************%s*******\n",faces.size());
+        out.printf("\n*****************faces*************%s*******",faces.size());
         for(FaceAnnotation face: faces){
             System.out.println(face);
         } if (faces.isEmpty()) {
@@ -112,8 +122,6 @@ public class LabelApp {
         }
 
     }
-    // [START authenticate]
-
     /**
      * Connects to the Vision API using Application Default Credentials.
      */
@@ -146,17 +154,18 @@ public class LabelApp {
         Feature featureLabel = new Feature();
         Feature featureFace = new Feature();
         Feature featureWeb = new Feature();
-
+        Feature featureProp= new Feature();
 
         featureLabel.setType("LABEL_DETECTION").setMaxResults(maxResults);
         featureFace.setType("FACE_DETECTION").setMaxResults(maxResults);
         featureWeb.setType("WEB_DETECTION").setMaxResults(maxResults);
+        featureProp.setType("IMAGE_PROPERTIES").setMaxResults(maxResults);
 
 
         AnnotateImageRequest request =
                 new AnnotateImageRequest()
                         .setImage(new Image().encodeContent(data))
-                        .setFeatures(ImmutableList.of(featureLabel, featureFace, featureWeb));
+                        .setFeatures(ImmutableList.of(featureLabel, featureFace, featureWeb, featureProp));
 //      System.out.println(request);
         Vision.Images.Annotate annotate =
                 vision.images()
@@ -185,3 +194,4 @@ public class LabelApp {
 
 
 }
+
